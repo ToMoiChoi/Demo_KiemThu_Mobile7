@@ -19,7 +19,7 @@ android {
         implementation 'androidx.appcompat:appcompat:1.6.1'
         implementation 'io.appium:java-client:9.2.2'
         implementation 'org.testng:testng:7.10.2'
-        implementation 'org.seleniumhq.selenium:selenium-java:4.21.0'
+        implementation 'org.seleniumhq.selenium:selenium-java:4.44.0'
     }
 
     buildTypes {
