@@ -68,10 +68,13 @@ public class ApiDemosPOMTest {
 
     @Test
     public void testAccessibilityNodeProvider() {
+        System.out.println("TEST CASE: Verify Accessibility Node Provider visibility");
+        System.out.println("EXPECTED RESULT: 'Accessibility Node Provider' text should be visible on screen.");
         try {
             homePage.clickAccessibility();
-            Assert.assertTrue(accessibilityPage.isAccessibilityNodeProviderVisible(), 
-                    "Accessibility Node Provider should be visible");
+            boolean isVisible = accessibilityPage.isAccessibilityNodeProviderVisible();
+            System.out.println("ACTUAL RESULT: Visibility is " + isVisible);
+            Assert.assertTrue(isVisible, "Accessibility Node Provider should be visible");
             driver.navigate().back(); // Return to home
         } catch (Exception e) {
             System.out.println("Test failed! Current Page Source:");
@@ -82,10 +85,13 @@ public class ApiDemosPOMTest {
 
     @Test
     public void testDefaultLayoutAnimation() {
+        System.out.println("TEST CASE: Verify Default Layout Animations (Add/Remove)");
+        System.out.println("EXPECTED RESULT: Button count increases by 5 then decreases by 3 correctly.");
         homePage.clickAnimation();
         animationPage.clickDefaultLayoutAnimations();
         
         int initialCount = defaultLayoutAnimationsPage.getButtonsCount();
+        System.out.println("Initial buttons: " + initialCount);
         int addClicks = 5;
         
         // Thêm 5 button
@@ -95,6 +101,7 @@ public class ApiDemosPOMTest {
         }
         
         int countAfterAdd = defaultLayoutAnimationsPage.getButtonsCount();
+        System.out.println("After adding 5: " + countAfterAdd);
         Assert.assertEquals(countAfterAdd, initialCount + addClicks, "Số lượng button phải tăng thêm " + addClicks);
         
         // Xóa 3 button bằng cách click vào chúng
@@ -106,6 +113,7 @@ public class ApiDemosPOMTest {
         }
         
         int finalCount = defaultLayoutAnimationsPage.getButtonsCount();
+        System.out.println("Final buttons (after deleting 3): " + finalCount);
         Assert.assertEquals(finalCount, countAfterAdd - deleteClicks, "Số lượng button phải giảm đi " + deleteClicks);
         
         driver.navigate().back(); // Back to Animation menu
@@ -114,15 +122,16 @@ public class ApiDemosPOMTest {
 
     @Test
     public void testHideShowAnimations() {
+        System.out.println("TEST CASE: Verify Hide-Show Animations with different modes");
+        System.out.println("EXPECTED RESULT: Buttons hide/show correctly with INVISIBLE, GONE and Custom animation modes.");
         homePage.clickAnimation();
         animationPage.clickHideShowAnimations();
 
         // 1. Trường hợp: Không có hiệu ứng (Mặc định - INVISIBLE)
-        // Đảm bảo cả 2 checkbox đều tắt
         if (hideShowAnimationsPage.isCustomAnimationsChecked()) hideShowAnimationsPage.clickCustomAnimations();
         if (hideShowAnimationsPage.isHideGoneChecked()) hideShowAnimationsPage.clickHideGone();
         
-        System.out.println("Testing: Default (Invisible)");
+        System.out.println("Step 1: Default (Invisible) mode");
         hideShowAnimationsPage.clickButton("0");
         sleep(1000);
         Assert.assertFalse(hideShowAnimationsPage.isButtonVisible("0"), "Nút 0 phải ẩn (Invisible)");
@@ -131,7 +140,7 @@ public class ApiDemosPOMTest {
 
         // 2. Trường hợp: Hiệu ứng thu nhỏ/gom lại (Hide GONE)
         hideShowAnimationsPage.clickHideGone();
-        System.out.println("Testing: Hide (GONE) - Thu nhỏ layout");
+        System.out.println("Step 2: Hide (GONE) mode - layout should shrink");
         hideShowAnimationsPage.clickButton("0");
         sleep(1000);
         Assert.assertFalse(hideShowAnimationsPage.isButtonVisible("0"), "Nút 0 phải biến mất hoàn toàn (GONE)");
@@ -140,11 +149,9 @@ public class ApiDemosPOMTest {
 
         // 3. Trường hợp: Hiệu ứng mờ dần & tùy chỉnh (Custom Animations)
         hideShowAnimationsPage.clickCustomAnimations();
-        System.out.println("Testing: Custom Animations - Mờ dần & Đẹp mắt");
+        System.out.println("Step 3: Custom Animations mode - smooth fade/shrink");
         hideShowAnimationsPage.clickButton("0");
         sleep(1000);
-        // Lưu ý: isButtonVisible có thể trả về false ngay lập tức vì trạng thái Displayed thay đổi,
-        // nhưng mắt người sẽ thấy animation chạy.
         Assert.assertFalse(hideShowAnimationsPage.isButtonVisible("0"), "Nút 0 phải ẩn với Custom Animation");
         hideShowAnimationsPage.clickShowButtons();
         sleep(1000);
@@ -155,11 +162,18 @@ public class ApiDemosPOMTest {
 
     @Test
     public void testUnicodeDisplay() {
+        System.out.println("TEST CASE: Verify Unicode text display");
+        System.out.println("EXPECTED RESULT: Arabic (عربي) and Tamil (தமிழ்) text should be visible.");
         homePage.clickText();
         unicodePage.clickUnicodeMenu();
         
-        Assert.assertTrue(unicodePage.isUnicodeTextVisible("عربي"), "Arabic text should be visible");
-        Assert.assertTrue(unicodePage.isUnicodeTextVisible("தமிழ்"), "Tamil text should be visible");
+        boolean arabicVisible = unicodePage.isUnicodeTextVisible("عربي");
+        boolean tamilVisible = unicodePage.isUnicodeTextVisible("தமிழ்");
+        System.out.println("Arabic visible: " + arabicVisible);
+        System.out.println("Tamil visible: " + tamilVisible);
+
+        Assert.assertTrue(arabicVisible, "Arabic text should be visible");
+        Assert.assertTrue(tamilVisible, "Tamil text should be visible");
 
         driver.navigate().back(); // Back to Text menu
         driver.navigate().back(); // Back to Home
@@ -167,24 +181,26 @@ public class ApiDemosPOMTest {
 
     @Test
     public void testUnicodeInput() {
+        System.out.println("TEST CASE: Verify Unicode text input (Vietnamese + Emoji)");
+        System.out.println("EXPECTED RESULT: The text 'Số 1: Xin chào Việt Nam 🇻🇳' should be entered correctly.");
         homePage.clickViews();
         controlsPage.clickControls();
         controlsPage.clickLightTheme();
         
         String unicodeText = "Số 1: Xin chào Việt Nam 🇻🇳";
         controlsPage.enterText(unicodeText);
+        String actualText = controlsPage.getEnteredText();
+        System.out.println("Actual entered text: " + actualText);
         
-        Assert.assertEquals(controlsPage.getEnteredText(), unicodeText, "Entered Unicode text should match");
+        Assert.assertEquals(actualText, unicodeText, "Entered Unicode text should match");
         
-        System.out.println("Input successful: " + unicodeText + ". Waiting 5 seconds...");
-        sleep(5000); // Chờ 5 giây để xem kết quả
+        System.out.println("Success. Waiting 5 seconds for visual verification...");
+        sleep(5000);
         
         driver.navigate().back(); // Back to Controls menu
         driver.navigate().back(); // Back to Views menu
         driver.navigate().back(); // Back to Home
     }
-
-
 
     private void sleep(long millis) {
         try {
