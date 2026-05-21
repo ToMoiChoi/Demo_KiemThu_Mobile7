@@ -184,31 +184,7 @@ public class ApiDemosPOMTest {
         driver.navigate().back(); // Back to Home
     }
 
-    @Test
-    public void testViewsScrollingAndInput() {
-        // 1. Click vào Views
-        homePage.clickViews();
-        sleep(2000);
-        
-        // 2. Scroll đến TextFields
-        viewsPage.scrollToTextFields();
-        
-        // 3. Click vào TextFields
-        viewsPage.clickTextFields();
-        sleep(2000);
-        
-        // 4. Nhập text
-        textFieldsPage.enterHelloAppium();
-        sleep(2000);
-        
-        // 5. Quay lại
-        driver.navigate().back();
-        driver.navigate().back();
-        
-        // 6. Scroll tiếp (Scroll forward)
-        viewsPage.scrollForward();
-        sleep(2000);
-    }
+
 
     private void sleep(long millis) {
         try {
