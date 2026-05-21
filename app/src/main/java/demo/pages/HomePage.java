@@ -19,6 +19,10 @@ public class HomePage {
         wait.until(ExpectedConditions.elementToBeClickable(AppiumBy.accessibilityId("Accessibility"))).click();
     }
 
+    public void clickApp() {
+        wait.until(ExpectedConditions.elementToBeClickable(AppiumBy.accessibilityId("App"))).click();
+    }
+
     public void clickAnimation() {
         wait.until(ExpectedConditions.elementToBeClickable(AppiumBy.accessibilityId("Animation"))).click();
     }

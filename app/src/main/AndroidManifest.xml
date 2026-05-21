@@ -3412,6 +3412,24 @@
             </intent-filter>
         </activity>
 
+        <!-- Authentication Samples -->
+        <activity android:name=".auth.AuthMainActivity"
+                  android:label="App/Authentication/Main"
+                  android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="appium.android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".auth.LoginActivity"
+                  android:label="App/Authentication/Login"
+                  android:exported="true" />
+
+        <activity android:name=".auth.RegisterActivity"
+                  android:label="App/Authentication/Register"
+                  android:exported="true" />
+
     </application>
 
     <instrumentation android:name=".app.LocalSampleInstrumentation"
