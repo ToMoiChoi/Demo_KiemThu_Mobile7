@@ -23,6 +23,10 @@ public class HomePage {
         wait.until(ExpectedConditions.elementToBeClickable(AppiumBy.accessibilityId("App"))).click();
     }
 
+    public void clickPreference() {
+        wait.until(ExpectedConditions.elementToBeClickable(AppiumBy.accessibilityId("Preference"))).click();
+    }
+
     public void clickAnimation() {
         wait.until(ExpectedConditions.elementToBeClickable(AppiumBy.accessibilityId("Animation"))).click();
     }

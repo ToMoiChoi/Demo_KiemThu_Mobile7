@@ -1,14 +1,7 @@
 package demo.tests;
 
-import demo.pages.AccessibilityPage;
-import demo.pages.AnimationPage;
-import demo.pages.ControlsPage;
-import demo.pages.DefaultLayoutAnimationsPage;
-import demo.pages.HideShowAnimationsPage;
-import demo.pages.HomePage;
-import demo.pages.TextFieldsPage;
-import demo.pages.UnicodePage;
-import demo.pages.ViewsPage;
+import demo.pages.*;
+import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
 import org.testng.Assert;
@@ -20,33 +13,39 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+/**
+ * Lớp ApiDemosPOMTest thực hiện 19 bài kiểm thử tự động (Test Cases)
+ * sử dụng mô hình Page Object Model (POM).
+ */
 public class ApiDemosPOMTest {
     private AndroidDriver driver;
     private HomePage homePage;
     private AccessibilityPage accessibilityPage;
     private AnimationPage animationPage;
+    private BouncingBallsPage bouncingBallsPage;
     private DefaultLayoutAnimationsPage defaultLayoutAnimationsPage;
     private HideShowAnimationsPage hideShowAnimationsPage;
     private UnicodePage unicodePage;
     private ControlsPage controlsPage;
     private ViewsPage viewsPage;
     private TextFieldsPage textFieldsPage;
+    private AppPage appPage;
+    private AlertDialogsPage alertDialogsPage;
+    private PreferencePage preferencePage;
+    private ChronometerPage chronometerPage;
 
     @BeforeClass
     public void setUp() throws MalformedURLException {
         UiAutomator2Options options = new UiAutomator2Options();
         options.setDeviceName("Android Emulator");
-        options.setAutomationName("UiAutomator2"); // Explicitly set correct case
+        options.setAutomationName("UiAutomator2"); 
         
-        // Robust way to get the APK path whether running from root or app module
         File userDir = new File(System.getProperty("user.dir"));
         File projectRoot = userDir.getName().equals("app") ? userDir.getParentFile() : userDir;
         File appFile = new File(projectRoot, "app/build/outputs/apk/debug/app-debug.apk");
         
         if (!appFile.exists()) {
-            // Fallback: search for any APK in the build folder if the standard path fails
-            throw new RuntimeException("APK not found at: " + appFile.getAbsolutePath() + 
-                    ". Please run ./gradlew assembleDebug first.");
+            throw new RuntimeException("Không tìm thấy APK tại: " + appFile.getAbsolutePath());
         }
 
         options.setApp(appFile.getAbsolutePath());
@@ -55,165 +54,257 @@ public class ApiDemosPOMTest {
 
         driver = new AndroidDriver(new URL("http://127.0.0.1:4723"), options);
 
+        // Khởi tạo tất cả các đối tượng Page
         homePage = new HomePage(driver);
         accessibilityPage = new AccessibilityPage(driver);
         animationPage = new AnimationPage(driver);
+        bouncingBallsPage = new BouncingBallsPage(driver);
         defaultLayoutAnimationsPage = new DefaultLayoutAnimationsPage(driver);
         hideShowAnimationsPage = new HideShowAnimationsPage(driver);
         unicodePage = new UnicodePage(driver);
         controlsPage = new ControlsPage(driver);
         viewsPage = new ViewsPage(driver);
         textFieldsPage = new TextFieldsPage(driver);
+        appPage = new AppPage(driver);
+        alertDialogsPage = new AlertDialogsPage(driver);
+        preferencePage = new PreferencePage(driver);
+        chronometerPage = new ChronometerPage(driver);
     }
 
-    @Test
-    public void testAccessibilityNodeProvider() {
-        System.out.println("TEST CASE: Verify Accessibility Node Provider visibility");
-        System.out.println("EXPECTED RESULT: 'Accessibility Node Provider' text should be visible on screen.");
-        try {
-            homePage.clickAccessibility();
-            boolean isVisible = accessibilityPage.isAccessibilityNodeProviderVisible();
-            System.out.println("ACTUAL RESULT: Visibility is " + isVisible);
-            Assert.assertTrue(isVisible, "Accessibility Node Provider should be visible");
-            driver.navigate().back(); // Return to home
-        } catch (Exception e) {
-            System.out.println("Test failed! Current Page Source:");
-            System.out.println(driver.getPageSource());
-            throw e;
-        }
-    }
+    // --- ACCESSIBILITY ---
 
     @Test
-    public void testDefaultLayoutAnimation() {
-        System.out.println("TEST CASE: Verify Default Layout Animations (Add/Remove)");
-        System.out.println("EXPECTED RESULT: Button count increases by 5 then decreases by 3 correctly.");
+    public void test1_AccessibilityNodeProvider() {
+        System.out.println("TEST CASE 1: Kiểm tra hiển thị Accessibility Node Provider");
+        homePage.clickAccessibility();
+        Assert.assertTrue(accessibilityPage.isAccessibilityNodeProviderVisible());
+        driver.navigate().back();
+    }
+
+    // --- ANIMATION ---
+
+    @Test
+    public void test2_DefaultLayoutAdd() {
+        System.out.println("TEST CASE 2: Thêm button trong Default Layout");
         homePage.clickAnimation();
         animationPage.clickDefaultLayoutAnimations();
-        
-        int initialCount = defaultLayoutAnimationsPage.getButtonsCount();
-        System.out.println("Initial buttons: " + initialCount);
-        int addClicks = 5;
-        
-        // Thêm 5 button
-        for (int i = 0; i < addClicks; i++) {
-            defaultLayoutAnimationsPage.clickAddButton();
-            sleep(500); // Wait for add animation
-        }
-        
-        int countAfterAdd = defaultLayoutAnimationsPage.getButtonsCount();
-        System.out.println("After adding 5: " + countAfterAdd);
-        Assert.assertEquals(countAfterAdd, initialCount + addClicks, "Số lượng button phải tăng thêm " + addClicks);
-        
-        // Xóa 3 button bằng cách click vào chúng
-        int deleteClicks = 3;
-        for (int j = 0; j < deleteClicks; j++) {
-            // Luôn click vào button đầu tiên trong grid để xóa
-            defaultLayoutAnimationsPage.clickButtonByIndex(0);
-            sleep(500); // Wait for delete animation
-        }
-        
-        int finalCount = defaultLayoutAnimationsPage.getButtonsCount();
-        System.out.println("Final buttons (after deleting 3): " + finalCount);
-        Assert.assertEquals(finalCount, countAfterAdd - deleteClicks, "Số lượng button phải giảm đi " + deleteClicks);
-        
-        driver.navigate().back(); // Back to Animation menu
-        driver.navigate().back(); // Back to Home
+        int initial = defaultLayoutAnimationsPage.getButtonsCount();
+        defaultLayoutAnimationsPage.clickAddButton();
+        sleep(500);
+        Assert.assertEquals(defaultLayoutAnimationsPage.getButtonsCount(), initial + 1);
+        driver.navigate().back(); driver.navigate().back();
     }
 
     @Test
-    public void testHideShowAnimations() {
-        System.out.println("TEST CASE: Verify Hide-Show Animations with different modes");
-        System.out.println("EXPECTED RESULT: Buttons hide/show correctly with INVISIBLE, GONE and Custom animation modes.");
+    public void test3_DefaultLayoutRemove() {
+        System.out.println("TEST CASE 3: Xóa button trong Default Layout");
+        homePage.clickAnimation();
+        animationPage.clickDefaultLayoutAnimations();
+        defaultLayoutAnimationsPage.clickAddButton();
+        sleep(500);
+        int count = defaultLayoutAnimationsPage.getButtonsCount();
+        defaultLayoutAnimationsPage.clickButtonByIndex(0);
+        sleep(500);
+        Assert.assertEquals(defaultLayoutAnimationsPage.getButtonsCount(), count - 1);
+        driver.navigate().back(); driver.navigate().back();
+    }
+
+    @Test
+    public void test4_HideShowInvisible() {
+        System.out.println("TEST CASE 4: Ẩn button chế độ Invisible");
         homePage.clickAnimation();
         animationPage.clickHideShowAnimations();
-
-        // 1. Trường hợp: Không có hiệu ứng (Mặc định - INVISIBLE)
-        if (hideShowAnimationsPage.isCustomAnimationsChecked()) hideShowAnimationsPage.clickCustomAnimations();
         if (hideShowAnimationsPage.isHideGoneChecked()) hideShowAnimationsPage.clickHideGone();
-        
-        System.out.println("Step 1: Default (Invisible) mode");
-        hideShowAnimationsPage.clickButton("0");
+        hideShowAnimationsPage.clickButton("1");
         sleep(1000);
-        Assert.assertFalse(hideShowAnimationsPage.isButtonVisible("0"), "Nút 0 phải ẩn (Invisible)");
-        hideShowAnimationsPage.clickShowButtons();
-        sleep(1000);
-
-        // 2. Trường hợp: Hiệu ứng thu nhỏ/gom lại (Hide GONE)
-        hideShowAnimationsPage.clickHideGone();
-        System.out.println("Step 2: Hide (GONE) mode - layout should shrink");
-        hideShowAnimationsPage.clickButton("0");
-        sleep(1000);
-        Assert.assertFalse(hideShowAnimationsPage.isButtonVisible("0"), "Nút 0 phải biến mất hoàn toàn (GONE)");
-        hideShowAnimationsPage.clickShowButtons();
-        sleep(1000);
-
-        // 3. Trường hợp: Hiệu ứng mờ dần & tùy chỉnh (Custom Animations)
-        hideShowAnimationsPage.clickCustomAnimations();
-        System.out.println("Step 3: Custom Animations mode - smooth fade/shrink");
-        hideShowAnimationsPage.clickButton("0");
-        sleep(1000);
-        Assert.assertFalse(hideShowAnimationsPage.isButtonVisible("0"), "Nút 0 phải ẩn với Custom Animation");
-        hideShowAnimationsPage.clickShowButtons();
-        sleep(1000);
-
-        driver.navigate().back(); // Back to Animation menu
-        driver.navigate().back(); // Back to Home
+        Assert.assertFalse(hideShowAnimationsPage.isButtonVisible("1"));
+        driver.navigate().back(); driver.navigate().back();
     }
 
     @Test
-    public void testUnicodeDisplay() {
-        System.out.println("TEST CASE: Verify Unicode text display");
-        System.out.println("EXPECTED RESULT: Arabic (عربي) and Tamil (தமிழ்) text should be visible.");
+    public void test5_HideShowGone() {
+        System.out.println("TEST CASE 5: Ẩn button chế độ GONE (layout co lại)");
+        homePage.clickAnimation();
+        animationPage.clickHideShowAnimations();
+        if (!hideShowAnimationsPage.isHideGoneChecked()) hideShowAnimationsPage.clickHideGone();
+        hideShowAnimationsPage.clickButton("1");
+        sleep(1000);
+        Assert.assertFalse(hideShowAnimationsPage.isButtonVisible("1"));
+        driver.navigate().back(); driver.navigate().back();
+    }
+
+    @Test
+    public void test6_HideShowCustom() {
+        System.out.println("TEST CASE 6: Hiệu ứng ẩn Custom");
+        homePage.clickAnimation();
+        animationPage.clickHideShowAnimations();
+        if (!hideShowAnimationsPage.isCustomAnimationsChecked()) hideShowAnimationsPage.clickCustomAnimations();
+        hideShowAnimationsPage.clickButton("2");
+        sleep(1000);
+        Assert.assertFalse(hideShowAnimationsPage.isButtonVisible("2"));
+        driver.navigate().back(); driver.navigate().back();
+    }
+
+    @Test
+    public void test10_DeleteAllButtons() {
+        System.out.println("TEST CASE 10: Xóa sạch toàn bộ button");
+        homePage.clickAnimation();
+        animationPage.clickDefaultLayoutAnimations();
+        for(int i=0; i<3; i++) defaultLayoutAnimationsPage.clickAddButton();
+        defaultLayoutAnimationsPage.clearAllButtons();
+        Assert.assertEquals(defaultLayoutAnimationsPage.getButtonsCount(), 0);
+        driver.navigate().back(); driver.navigate().back();
+    }
+
+    @Test
+    public void test11_AddDeleteFast() {
+        System.out.println("TEST CASE 11: Thêm và xóa nhanh");
+        homePage.clickAnimation();
+        animationPage.clickDefaultLayoutAnimations();
+        defaultLayoutAnimationsPage.clickAddButton();
+        defaultLayoutAnimationsPage.clickButtonByIndex(0);
+        sleep(500);
+        driver.navigate().back(); driver.navigate().back();
+    }
+
+    @Test
+    public void test12_RemoveReverseOrder() {
+        System.out.println("TEST CASE 12: Xóa ngược từ cuối lên");
+        homePage.clickAnimation();
+        animationPage.clickDefaultLayoutAnimations();
+        for(int i=0; i<3; i++) defaultLayoutAnimationsPage.clickAddButton();
+        int count = defaultLayoutAnimationsPage.getButtonsCount();
+        for(int i=count-1; i>=0; i--) {
+            defaultLayoutAnimationsPage.clickButtonByIndex(i);
+            sleep(200);
+        }
+        Assert.assertEquals(defaultLayoutAnimationsPage.getButtonsCount(), 0);
+        driver.navigate().back(); driver.navigate().back();
+    }
+
+    @Test
+    public void test13_BouncingBalls() {
+        System.out.println("TEST CASE 13: Tạo bóng nảy");
+        homePage.clickAnimation();
+        animationPage.clickBouncingBalls();
+        bouncingBallsPage.tapOnScreen(500, 500);
+        bouncingBallsPage.tapOnScreen(200, 800);
+        sleep(2000);
+        driver.navigate().back(); driver.navigate().back();
+    }
+
+    // --- TEXT ---
+
+    @Test
+    public void test7_UnicodeArabic() {
+        System.out.println("TEST CASE 7: Hiển thị tiếng Ả Rập");
         homePage.clickText();
         unicodePage.clickUnicodeMenu();
-        
-        boolean arabicVisible = unicodePage.isUnicodeTextVisible("عربي");
-        boolean tamilVisible = unicodePage.isUnicodeTextVisible("தமிழ்");
-        System.out.println("Arabic visible: " + arabicVisible);
-        System.out.println("Tamil visible: " + tamilVisible);
-
-        Assert.assertTrue(arabicVisible, "Arabic text should be visible");
-        Assert.assertTrue(tamilVisible, "Tamil text should be visible");
-
-        driver.navigate().back(); // Back to Text menu
-        driver.navigate().back(); // Back to Home
+        Assert.assertTrue(unicodePage.isUnicodeTextVisible("عربي"));
+        driver.navigate().back(); driver.navigate().back();
     }
 
     @Test
-    public void testUnicodeInput() {
-        System.out.println("TEST CASE: Verify Unicode text input (Vietnamese + Emoji)");
-        System.out.println("EXPECTED RESULT: The text 'Số 1: Xin chào Việt Nam 🇻🇳' should be entered correctly.");
+    public void test8_UnicodeTamil() {
+        System.out.println("TEST CASE 8: Hiển thị tiếng Tamil");
+        homePage.clickText();
+        unicodePage.clickUnicodeMenu();
+        Assert.assertTrue(unicodePage.isUnicodeTextVisible("தமிழ்"));
+        driver.navigate().back(); driver.navigate().back();
+    }
+
+    @Test
+    public void test9_UnicodeVietnamese() {
+        System.out.println("TEST CASE 9: Nhập tiếng Việt và Emoji");
         homePage.clickViews();
         controlsPage.clickControls();
         controlsPage.clickLightTheme();
-        
-        String unicodeText = "Số 1: Xin chào Việt Nam 🇻🇳";
-        controlsPage.enterText(unicodeText);
-        String actualText = controlsPage.getEnteredText();
-        System.out.println("Actual entered text: " + actualText);
-        
-        Assert.assertEquals(actualText, unicodeText, "Entered Unicode text should match");
-        
-        System.out.println("Success. Waiting 5 seconds for visual verification...");
-        sleep(5000);
-        
-        driver.navigate().back(); // Back to Controls menu
-        driver.navigate().back(); // Back to Views menu
-        driver.navigate().back(); // Back to Home
+        String text = "Số 1: Xin chào 🇻🇳";
+        controlsPage.enterText(text);
+        Assert.assertEquals(controlsPage.getEnteredText(), text);
+        sleep(2000);
+        driver.navigate().back(); driver.navigate().back(); driver.navigate().back();
+    }
+
+    // --- VIEWS ---
+
+    @Test
+    public void test14_ViewsScrolling() {
+        System.out.println("TEST CASE 14: Cuộn tìm TextFields");
+        homePage.clickViews();
+        viewsPage.scrollToTextFields();
+        viewsPage.clickTextFields();
+        textFieldsPage.enterHelloAppium();
+        sleep(1000);
+        driver.navigate().back(); driver.navigate().back(); driver.navigate().back();
+    }
+
+    @Test
+    public void test19_Chronometer() {
+        System.out.println("TEST CASE 19: Đồng hồ bấm giờ");
+        homePage.clickViews();
+        driver.findElement(AppiumBy.androidUIAutomator("new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().text(\"Chronometer\"))")).click();
+        chronometerPage.clickStart();
+        sleep(2000);
+        String time = chronometerPage.getTimerText();
+        System.out.println("Thời gian: " + time);
+        chronometerPage.clickStop();
+        driver.navigate().back(); driver.navigate().back();
+    }
+
+    // --- APP / ALERTS ---
+
+    @Test
+    public void test15_AlertOk() {
+        System.out.println("TEST CASE 15: Chấp nhận Alert");
+        homePage.clickApp();
+        appPage.clickAlertDialogs();
+        alertDialogsPage.clickOkCancelDialogButton();
+        alertDialogsPage.clickOkOnDialog();
+        driver.navigate().back(); driver.navigate().back();
+    }
+
+    @Test
+    public void test16_AlertListSelection() {
+        System.out.println("TEST CASE 16: Chọn item từ Alert List");
+        homePage.clickApp();
+        appPage.clickAlertDialogs();
+        alertDialogsPage.clickListDialogButton();
+        alertDialogsPage.selectItemFromList("Command one");
+        sleep(1000);
+        driver.navigate().back(); driver.navigate().back();
+    }
+
+    // --- PREFERENCE ---
+
+    @Test
+    public void test17_PreferenceWiFi() {
+        System.out.println("TEST CASE 17: Bật/Tắt WiFi Preference");
+        homePage.clickPreference();
+        preferencePage.clickPreferenceDependencies();
+        preferencePage.clickWiFiCheckbox();
+        driver.navigate().back(); driver.navigate().back();
+    }
+
+    @Test
+    public void test18_PreferenceDependency() {
+        System.out.println("TEST CASE 18: Kiểm tra phụ thuộc WiFi Settings");
+        homePage.clickPreference();
+        preferencePage.clickPreferenceDependencies();
+        // Nếu checkbox tắt, WiFi settings phải bị disable
+        if (preferencePage.isWiFiSettingsEnabled()) preferencePage.clickWiFiCheckbox();
+        Assert.assertFalse(preferencePage.isWiFiSettingsEnabled());
+        preferencePage.clickWiFiCheckbox(); // Bật lại
+        Assert.assertTrue(preferencePage.isWiFiSettingsEnabled());
+        driver.navigate().back(); driver.navigate().back();
     }
 
     private void sleep(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        try { Thread.sleep(millis); } catch (InterruptedException e) { e.printStackTrace(); }
     }
 
     @AfterClass
     public void tearDown() {
-        if (driver != null) {
-            driver.quit();
-        }
+        if (driver != null) driver.quit();
     }
 }

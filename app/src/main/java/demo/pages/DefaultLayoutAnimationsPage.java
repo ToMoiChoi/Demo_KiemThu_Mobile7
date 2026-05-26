@@ -29,8 +29,25 @@ public class DefaultLayoutAnimationsPage {
         }
     }
 
+    public String getButtonTextByIndex(int index) {
+        List<WebElement> buttons = driver.findElements(AppiumBy.xpath("//android.widget.GridLayout/android.widget.Button"));
+        if (index < buttons.size()) {
+            return buttons.get(index).getText();
+        }
+        return null;
+    }
+
     public int getButtonsCount() {
         List<WebElement> buttons = driver.findElements(AppiumBy.xpath("//android.widget.GridLayout/android.widget.Button"));
         return buttons.size();
+    }
+
+    public void clearAllButtons() {
+        List<WebElement> buttons = driver.findElements(AppiumBy.xpath("//android.widget.GridLayout/android.widget.Button"));
+        while (!buttons.isEmpty()) {
+            buttons.get(0).click();
+            try { Thread.sleep(200); } catch (InterruptedException e) {}
+            buttons = driver.findElements(AppiumBy.xpath("//android.widget.GridLayout/android.widget.Button"));
+        }
     }
 }
