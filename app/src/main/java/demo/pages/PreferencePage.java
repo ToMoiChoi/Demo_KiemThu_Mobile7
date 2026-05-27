@@ -22,7 +22,7 @@ public class PreferencePage {
 
     public void clickWiFiCheckbox() {
         wait.until(ExpectedConditions.elementToBeClickable(
-                AppiumBy.id("android:id/checkbox"))).click();
+                AppiumBy.androidUIAutomator("new UiSelector().resourceId(\"android:id/checkbox\")"))).click();
     }
 
     public void clickWiFiSettings() {

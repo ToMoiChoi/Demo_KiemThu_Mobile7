@@ -25,6 +25,21 @@ public class ChronometerPage {
                 AppiumBy.accessibilityId("Stop"))).click();
     }
 
+    public void clickReset() {
+        wait.until(ExpectedConditions.elementToBeClickable(
+                AppiumBy.accessibilityId("Reset"))).click();
+    }
+
+    public void clickSetFormat() {
+        wait.until(ExpectedConditions.elementToBeClickable(
+                AppiumBy.accessibilityId("Set format string"))).click();
+    }
+
+    public void clickClearFormat() {
+        wait.until(ExpectedConditions.elementToBeClickable(
+                AppiumBy.accessibilityId("Clear format string"))).click();
+    }
+
     public String getTimerText() {
         return wait.until(ExpectedConditions.presenceOfElementLocated(
                 AppiumBy.id("io.appium.android.apis:id/chronometer"))).getText();
