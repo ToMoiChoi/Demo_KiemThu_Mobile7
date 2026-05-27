@@ -1,6 +1,8 @@
 package demo.pages;
 
+import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.PointerInput;
 import org.openqa.selenium.interactions.Sequence;
 import java.time.Duration;
@@ -11,6 +13,31 @@ public class BouncingBallsPage {
 
     public BouncingBallsPage(AndroidDriver driver) {
         this.driver = driver;
+    }
+
+    public void navigateToBouncingBalls() {
+        HomePage homePage = new HomePage(driver);
+        homePage.clickAnimation();
+        AnimationPage animationPage = new AnimationPage(driver);
+        animationPage.clickBouncingBalls();
+    }
+
+    public WebElement getAnimationContainer() {
+        return driver.findElement(AppiumBy.id("io.appium.android.apis:id/container"));
+    }
+
+    public void tapAtPosition(int x, int y) {
+        tapOnScreen(x, y);
+    }
+
+    public void dragFinger(int startX, int startY, int endX, int endY) {
+        PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+        Sequence drag = new Sequence(finger, 1);
+        drag.addAction(finger.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), startX, startY));
+        drag.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+        drag.addAction(finger.createPointerMove(Duration.ofMillis(1000), PointerInput.Origin.viewport(), endX, endY));
+        drag.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+        driver.perform(Arrays.asList(drag));
     }
 
     /**
